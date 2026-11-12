@@ -38,6 +38,14 @@ def read_expenses(path: Path) -> list[Expense]:
         return [parse_row(row, n) for n, row in enumerate(csv.DictReader(f), start=2)]
 
 
+def totals_by_month(expenses: list[Expense]) -> dict[str, dict[str, Decimal]]:
+    raw: dict[str, dict[str, Decimal]] = {}
+    for e in expenses:
+        month = raw.setdefault(f"{e.day.year:04d}-{e.day.month:02d}", {})
+        month[e.currency] = month.get(e.currency, Decimal(0)) + e.amount
+    return {key: raw[key] for key in sorted(raw)}
+
+
 def summary(expenses: list[Expense]) -> str:
     if not expenses:
         return "No expenses."
