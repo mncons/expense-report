@@ -34,3 +34,9 @@ follow AGENTS.md and say so in the plan.
 - Standard library only. If the issue is too big or needs other libraries (Excel), plan the part that fits and list the rest under Out of scope as follow-up issues.
 - JSON amounts load as Decimal: json.load(f, parse_float=Decimal).
 - End with "Approval checklist": three yes/no questions for the human (scope, assumptions, tests).
+
+## Budget
+- Explore with Read and Glob only; the one shell command you may run is gh issue view.
+- Keep the change small: one page or one section per ticket. At most 3 checks.
+- If the issue needs something the gates forbid (external links), plan the part that fits and list the rest under Out of scope.
+- End with "Approval checklist": three yes/no questions for the human (scope, assumptions, tests).
