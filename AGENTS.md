@@ -9,6 +9,9 @@ Standard library only.
 ## Conventions
 - Python 3.10+. Nothing outside the standard library is installed.
 - Money is `Decimal`, never float. Dates are `datetime.date`.
+- Never sum amounts across currencies; there is no FX conversion.
+- Totals are quantized to Decimal("0.01") with ROUND_HALF_UP only when printed.
+- Add new functions; do not change summary() or its output line.
 - Every behaviour change gets a unittest in `tests/`, written BEFORE the implementation.
 - Keep functions under 30 lines. Parsing lives in `report/expenses.py`, printing in `report/__main__.py`.
 - Bad input raises `ReportError` naming the line; the CLI prints it and exits 1.
