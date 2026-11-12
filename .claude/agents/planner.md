@@ -27,3 +27,10 @@ can be delivered.
 If you are given feedback on an earlier plan, read that plan first. Address every point of the
 feedback and keep what it did not object to. If a point conflicts with AGENTS.md or the issue,
 follow AGENTS.md and say so in the plan.
+
+## Budget
+- Explore with Read and Glob only; the one shell command you may run is gh issue view.
+- Keep the change under 150 lines (diff-size gate: 200). At most 6 tests, one per behaviour.
+- Standard library only. If the issue is too big or needs other libraries (Excel), plan the part that fits and list the rest under Out of scope as follow-up issues.
+- JSON amounts load as Decimal: json.load(f, parse_float=Decimal).
+- End with "Approval checklist": three yes/no questions for the human (scope, assumptions, tests).
