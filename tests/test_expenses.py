@@ -6,7 +6,8 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
-from report.expenses import Expense, ReportError, parse_row, read_expenses, summary
+from report.__main__ import format_totals
+from report.expenses import Expense, ReportError, parse_row, read_expenses, summary, totals_by_currency
 
 ROW = {"date": "2026-10-03", "description": "Taxi", "amount": "12.50", "currency": "usd"}
 
@@ -53,7 +54,43 @@ class ReadAndSummarise(unittest.TestCase):
         self.assertEqual(summary([]), "No expenses.")
 
 
+def exp(amount: str, currency: str) -> Expense:
+    return Expense(date(2026, 10, 1), "x", Decimal(amount), currency)
+
+
+class Totals(unittest.TestCase):
+    def test_sums_per_currency(self) -> None:
+        totals = totals_by_currency([exp("4.20", "EUR"), exp("5", "USD"), exp("6.80", "EUR")])
+        self.assertEqual(totals, {"EUR": Decimal("11.00"), "USD": Decimal("5")})
+
+    def test_sorted_keys(self) -> None:
+        totals = totals_by_currency([exp("1", "USD"), exp("1", "EUR"), exp("1", "GBP")])
+        self.assertEqual(list(totals), ["EUR", "GBP", "USD"])
+
+    def test_empty(self) -> None:
+        self.assertEqual(totals_by_currency([]), {})
+
+    def test_decimal_exact(self) -> None:
+        totals = totals_by_currency([exp("0.10", "EUR"), exp("0.20", "EUR")])
+        self.assertEqual(totals["EUR"], Decimal("0.30"))
+
+    def test_format_rounds_half_up(self) -> None:
+        self.assertEqual(format_totals({"EUR": Decimal("1.005"), "USD": Decimal("9")}), ["EUR 1.01", "USD 9.00"])
+
+    def test_format_keeps_order(self) -> None:
+        self.assertEqual(format_totals({"GBP": Decimal("141.9"), "EUR": Decimal("1")}), ["GBP 141.90", "EUR 1.00"])
+
+
 class Cli(unittest.TestCase):
+    def test_sample_totals(self) -> None:
+        out = self.run_cli("data/sample.csv")
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertEqual(out.stdout.splitlines()[1:], ["EUR 141.90", "GBP 210.00", "USD 485.00"])
+
+    def test_header_only(self) -> None:
+        out = self.run_cli(str(write_csv("date,description,amount,currency\n")))
+        self.assertEqual(out.stdout.splitlines(), ["No expenses."])
+
     def run_cli(self, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run([sys.executable, "-m", "report", *args], capture_output=True, text=True)
 
