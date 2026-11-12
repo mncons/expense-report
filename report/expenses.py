@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 
 
@@ -43,3 +43,14 @@ def summary(expenses: list[Expense]) -> str:
         return "No expenses."
     days = sorted(e.day for e in expenses)
     return f"{len(expenses)} expenses from {days[0].isoformat()} to {days[-1].isoformat()}"
+
+
+def totals_by_currency(expenses: list[Expense]) -> list[str]:
+    totals: dict[str, Decimal] = {}
+    for e in expenses:
+        totals[e.currency] = totals.get(e.currency, Decimal("0")) + e.amount
+    cent = Decimal("0.01")
+    return [
+        f"{code} {totals[code].quantize(cent, rounding=ROUND_HALF_UP)}"
+        for code in sorted(totals)
+    ]
